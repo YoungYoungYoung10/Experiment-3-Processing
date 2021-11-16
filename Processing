@@ -1,0 +1,89 @@
+/*
+DIGF 6037 Creation & Computation
+   Kate Hartman & Nick Puckett
+   Arduino to Processing - sending 1 value from IMU data
+ Based on based on this Lab on the ITP Physical Computing site: 
+ https://itp.nyu.edu/physcomp/labs/labs-serial-communication/two-way-duplex-serial-communication-using-an-arduino/
+ */
+
+import processing.serial.*; // import the Processing serial library
+Serial myPort;              // The serial port
+
+ArrayList<PVector>heart = new ArrayList<PVector>();
+float a = 0;
+int sensor1;
+int sensor2;
+int sensor3;
+
+float circleX;
+float circleY;
+
+void setup(){
+
+  size(1023,1023);
+  printArray(Serial.list());
+  String portName = Serial.list()[4];
+  myPort = new Serial(this, portName, 9600);
+  myPort.bufferUntil('\n');
+
+  background(0);
+}
+
+
+void draw() 
+{
+circleX = random(width);
+circleY = random(height);
+  float c = map(sensor1, 0, width, 0, 400);
+  float d = map(sensor2, 0, width, 40,500);
+  float e = map(sensor3, 0, width, 40,500);
+
+ fill(random(255),0,random(255),e);
+ noStroke();
+ ellipse(circleX,circleY,d,d);
+
+
+
+
+
+
+translate(width/2,height/2);
+noFill();
+stroke(255);
+strokeWeight(8);
+//fill(150,0,100);
+fill(150,0, c);
+beginShape();
+for(PVector v: heart)  {
+vertex(v.x,v.y);
+
+
+}
+endShape();
+float r = 10;
+float x =r * 16*pow( sin(a),3);
+float y = -r*(13*cos(a) - 5*cos(2*a) - 2*cos(3*a)-  cos(4*a));
+heart.add(new PVector(x,y));
+a+=0.01;
+}
+
+
+void serialEvent(Serial myPort) {
+  // read the serial buffer:
+  String myString = myPort.readStringUntil('\n');
+  if (myString != null) {
+    myString = trim(myString);
+    
+    String tempData[] = split(myString,',');
+    
+    //convert from string to the correct data type
+    sensor1 = int(tempData[0]);
+    sensor2 = int(tempData[1]);
+    sensor3 = int(tempData[2]);
+    
+    print("sensor1 says : " + sensor1 + "\t");
+    println("sensor2 says : " + sensor2);
+    println("sensor3 says: " + sensor3);
+    
+  }
+}
